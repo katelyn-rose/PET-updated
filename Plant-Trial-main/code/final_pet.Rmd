@@ -1,0 +1,643 @@
+---
+title: "pet final"
+output: html_document
+date: "2024-06-18"
+---
+
+```{r}
+library(tidyverse) # general usage
+library(here) # organization
+library(plotly) # interactive plots
+library(skimr) # quick glimpses at data
+library(naniar) # visualizing missing data
+library(magick) # inserting images into plots
+library(NatParksPalettes) # one example of color palette package
+library(patchwork) # putting plots together
+library(GGally)
+library(ggeffects)
+library(flextable) 
+library(car)
+library(broom)
+library(corrplot)
+```
+
+
+```{r}
+# reading in data
+pet_data <- read.csv(here("data", "plantcodefinal.csv"))
+```
+
+```{r}
+# cleaning data for analysis
+pet_data_clean <-  pet_data %>% 
+   filter(irrigation %in% c("high", "low"))
+```
+
+
+```{r}
+# initial plot to visualize dataset
+ggplot(data = pet_data_clean, aes(x = surv_month, y = growth_rate, color = irrigation)) +
+       geom_jitter(na.rm = TRUE) +
+  theme_bw()+
+  facet_wrap(~species + size) +
+  labs(x = "Survey Month",
+        y = "Plant Growth Index (PGI)")
+```
+##Showing Mean PGI by Species and Irrigation Level
+
+#Overall
+
+```{r}
+# mean PGI by irrigation level
+pet_summary_irr <- pet_data_clean %>% 
+group_by(irrigation) %>% 
+  summarize(mean_growth = mean(growth_rate),
+        sd_growth = sd(growth_rate),
+        var_growth = var(growth_rate),
+        count_growth = length(growth_rate), 
+        se_growth = sd_growth/sqrt(count_growth),
+        margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+
+# plotting relationship
+ggplot(data = pet_summary_irr, aes (y = mean_growth, x = irrigation, color = irrigation)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Irrigation Level") +
+   scale_y_continuous(name = "Mean Plant Growth Index", limits = c(20, 40))+
+   theme_bw()
+```
+
+Not very clear, let's isolate by species.
+
+```{r}
+# isolate species data
+ arcto <- pet_data_clean %>% 
+   filter(species %in% "arcto")
+ 
+ arte <- pet_data_clean %>% 
+   filter(species %in% "arte")
+ 
+ ceo <- pet_data_clean %>% 
+   filter(species %in% "ceo")
+ 
+ dip <- pet_data_clean %>% 
+   filter(species %in% "dip")
+ 
+ salvia <- pet_data_clean %>% 
+   filter(species %in% "salvia")
+```
+
+#Arctostaphylos Mean Plant Growth Index by Pot Size and Irrigation
+```{r}
+# isolated arcto mean PGI by irrigation
+arcto_irrigation <- arcto %>% 
+   group_by(irrigation) %>% 
+   summarize(mean_growth = mean(growth_rate),
+             sd_growth = sd(growth_rate),
+             var_growth = var(growth_rate),
+             count_growth = length(growth_rate),
+             se_growth = sd_growth/sqrt(count_growth),
+             margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+ 
+ # plotting relationship
+ ggplot(data = arcto_irrigation, aes (y = mean_growth, x = irrigation, color = irrigation)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Irrigation Level",
+        y = "Mean PGI",
+        title = "Arctostaphylos") +
+   theme_bw()
+```
+
+
+```{r}
+# isolated arcto mean PGI by pot size
+arcto_size <- arcto %>% 
+   group_by(size) %>% 
+   summarize(mean_growth = mean(growth_rate),
+             sd_growth = sd(growth_rate),
+             var_growth = var(growth_rate),
+             count_growth = length(growth_rate),
+             se_growth = sd_growth/sqrt(count_growth),
+             margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+ 
+ # plotting relationship
+ ggplot(data = arcto_size, aes (y = mean_growth, x = size, color = size)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Pot Size",
+        y = "Mean PGI",
+        title = "Arctostaphylos") +
+   theme_bw()
+```
+
+```{r}
+# anovas for arcto size and irrigation
+ arcto_irr_anova <- aov(growth_rate ~ irrigation, data = arcto)
+ 
+ arcto_size_anova <- aov(growth_rate ~ size, data = arcto)
+
+summary(arcto_irr_anova)
+summary(arcto_size_anova)
+```
+
+We can see that the Acrtostaphylos in the low irrigation plot had a significantly higher mean plant growth index than those in the high irrigation plot. The Acrtostaphylos which started in 1 gallon pots had a significantly higher mean plant growth index than those started in 4 inch pots.
+
+#Artemisia Mean Plant Growth Index by Pot Size and Irrigation
+```{r}
+# isolated arte mean PGI by irrigation
+arte_irrigation <- arte %>% 
+   group_by(irrigation) %>% 
+   summarize(mean_growth = mean(growth_rate),
+             sd_growth = sd(growth_rate),
+             var_growth = var(growth_rate),
+             count_growth = length(growth_rate),
+             se_growth = sd_growth/sqrt(count_growth),
+             margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+ 
+ # plotting relationship
+ ggplot(data = arte_irrigation, aes (y = mean_growth, x = irrigation, color = irrigation)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Irrigation Level",
+        y = "Mean PGI",
+        title = "Artemisia") +
+   theme_bw()
+```
+
+
+```{r}
+# isolated arte mean PGI by pot size
+arte_size <- arte %>% 
+   group_by(size) %>% 
+   summarize(mean_growth = mean(growth_rate),
+             sd_growth = sd(growth_rate),
+             var_growth = var(growth_rate),
+             count_growth = length(growth_rate),
+             se_growth = sd_growth/sqrt(count_growth),
+             margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+ 
+ # plotting relationship
+ ggplot(data = arte_size, aes (y = mean_growth, x = size, color = size)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Pot Size",
+        y = "Mean PGI",
+        title = "Artemisia") +
+   theme_bw()
+```
+
+```{r}
+# anovas for arte size and irrigation
+ arte_irr_anova <- aov(growth_rate ~ irrigation, data = arte)
+ 
+ arte_size_anova <- aov(growth_rate ~ size, data = arte)
+
+summary(arte_irr_anova)
+summary(arte_size_anova)
+```
+We can see there is no significant difference in the mean growth rate between pot size or irrigation level for Artemisia. The low irrigation and the 1 gallon plants had slightly (but not significantly) higher mean PG.
+
+#Ceanothus Mean Plant Growth Index by Pot Size and Irrigation
+```{r}
+# isolated ceo mean PGI by irrigation
+ceo_irrigation <- ceo %>% 
+   group_by(irrigation) %>% 
+   summarize(mean_growth = mean(growth_rate),
+             sd_growth = sd(growth_rate),
+             var_growth = var(growth_rate),
+             count_growth = length(growth_rate),
+             se_growth = sd_growth/sqrt(count_growth),
+             margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+ 
+ # plotting relationship
+ ggplot(data = ceo_irrigation, aes (y = mean_growth, x = irrigation, color = irrigation)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Irrigation Level",
+        y = "Mean PGI",
+        title = "Ceanothus") +
+   theme_bw()
+```
+
+
+```{r}
+# isolated arte mean PGI by pot size
+ceo_size <- ceo %>% 
+   group_by(size) %>% 
+   summarize(mean_growth = mean(growth_rate),
+             sd_growth = sd(growth_rate),
+             var_growth = var(growth_rate),
+             count_growth = length(growth_rate),
+             se_growth = sd_growth/sqrt(count_growth),
+             margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+ 
+ # plotting relationship
+ ggplot(data = ceo_size, aes (y = mean_growth, x = size, color = size)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Pot Size",
+        y = "Mean PGI",
+        title = "Ceanothus") +
+   theme_bw()
+```
+
+```{r}
+# anovas for ceo size and irrigation
+ ceo_irr_anova <- aov(growth_rate ~ irrigation, data = ceo)
+ 
+ ceo_size_anova <- aov(growth_rate ~ size, data = ceo)
+
+summary(ceo_irr_anova)
+summary(ceo_size_anova)
+```
+
+We can see that the Ceanothus in the high irrigation plot had a significantly larger mean plant growth index than those in the low irrigation plot. There was no significant difference between Ceanothus in 1 gallon and 4 inch pots, however the 1 gallon Ceanothus mean PGI was slightly higher.
+
+
+```{r}
+# isolated dip mean PGI by irrigation
+dip_irrigation <- dip %>% 
+   group_by(irrigation) %>% 
+   summarize(mean_growth = mean(growth_rate),
+             sd_growth = sd(growth_rate),
+             var_growth = var(growth_rate),
+             count_growth = length(growth_rate),
+             se_growth = sd_growth/sqrt(count_growth),
+             margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+ 
+ # plotting relationship
+ ggplot(data = dip_irrigation, aes (y = mean_growth, x = irrigation, color = irrigation)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Irrigation Level",
+        y = "Mean PGI",
+        title = "Diplacus") +
+   theme_bw()
+```
+
+
+```{r}
+# isolated dip mean PGI by pot size
+dip_size <- dip %>% 
+   group_by(size) %>% 
+   summarize(mean_growth = mean(growth_rate),
+             sd_growth = sd(growth_rate),
+             var_growth = var(growth_rate),
+             count_growth = length(growth_rate),
+             se_growth = sd_growth/sqrt(count_growth),
+             margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+ 
+ # plotting relationship
+ ggplot(data = dip_size, aes (y = mean_growth, x = size, color = size)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Pot Size",
+        y = "Mean PGI",
+        title = "Diplacus") +
+   theme_bw()
+```
+
+```{r}
+# anovas for dip size and irrigation
+ dip_irrigation_anova <- aov(growth_rate ~ irrigation, data = dip)
+ 
+ dip_size_anova <- aov(growth_rate ~ size, data = dip)
+
+summary(dip_irrigation_anova)
+summary(dip_size_anova)
+```
+
+We can see that there is no significant difference in the mean PGI of Diplacus planted in the low and high level irrigation plots, or between those started in 1 gallon and 4 inch pots.
+
+
+```{r}
+salvia_irrigation <- salvia %>% 
+   group_by(irrigation) %>% 
+   summarize(mean_growth = mean(growth_rate),
+             sd_growth = sd(growth_rate),
+             var_growth = var(growth_rate),
+             count_growth = length(growth_rate),
+             se_growth = sd_growth/sqrt(count_growth),
+             margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+ 
+ # plotting relationship
+ ggplot(data = salvia_irrigation, aes (y = mean_growth, x = irrigation, color = irrigation)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Irrigation Level",
+        y = "Mean PGI",
+        title = "Salvia") +
+   theme_bw()
+```
+
+
+```{r}
+salvia_size <- salvia %>% 
+   group_by(size) %>% 
+   summarize(mean_growth = mean(growth_rate),
+             sd_growth = sd(growth_rate),
+             var_growth = var(growth_rate),
+             count_growth = length(growth_rate),
+             se_growth = sd_growth/sqrt(count_growth),
+             margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+ 
+ # plotting relationship
+ ggplot(data = salvia_size, aes (y = mean_growth, x = size, color = size)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Pot Size",
+        y = "Mean PGI",
+        title = "Salvia") +
+   theme_bw()
+```
+
+```{r}
+# anovas for salvia size and irrigation
+ salvia_irrigation_anova <- aov(growth_rate ~ irrigation, data = salvia)
+ 
+ salvia_size_anova <- aov(growth_rate ~ size, data = salvia)
+
+summary(salvia_irrigation_anova)
+summary(salvia_size_anova)
+```
+
+We can see there is no significant difference in the mean growth rate between pot size or irrigation level for Salvia. The high irrigation and the 4 inch plants had slightly (but not significantly) higher mean PG.
+
+The mean of the plant growth index flattens the data and removes the seasonal oscillations inherent this time-series data. We can also look at the growth rate of each treatment by taking the slope of the line representing the PGI over time. This serves to visualize the inches of growth per month for each species.
+
+#Arctostaphylos Growth Rate
+
+```{r}
+irr_labels <- labeller(
+  irrigation = c(
+    high = "High Irrigation",
+    low = "Low Irrigation"))
+
+```
+
+```{r}
+#creating a plot of growth rate by irrigation
+# split by irrigation
+ggplot(data = arcto, aes(x = surv_month, y = growth_rate)) +
+  geom_jitter(aes(color = size), na.rm = TRUE) +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))+
+  labs(title = "Arctostaphylos")+
+  facet_wrap(~irrigation, scales = "free", labeller = irr_labels) +
+    scale_x_continuous(name = "Survey Month", limits = c(1, 24)) +
+  scale_y_continuous(name = "Plant Growth Index", limits = c(1, 25))+
+   scale_color_manual(values = c("brown1", "deepskyblue"),
+                      name = " ",
+                     labels = c("1 gallon", "4 inch")) +  
+  # adding slope lines
+  # high irr 1 gal
+  geom_abline(data = subset(arcto, irrigation == "high"), 
+              aes(slope=0.261, intercept=10.056), 
+              color = "brown1") +
+  # high irr 4 in
+  geom_abline(data = subset(arcto, irrigation == "high"), 
+              aes(slope=0.284, intercept=9.285), 
+              color = "deepskyblue")+
+  # low irr 4 in
+   geom_abline(data = subset(arcto, irrigation == "low"), 
+              aes(slope=0.382, intercept=8.794), 
+              color = "deepskyblue")+
+  # low irr 1 gal
+  geom_abline(data = subset(arcto_reframe, irrigation == "low"), 
+              aes(slope=0.554, intercept=10.385), 
+              color = "brown1")+
+  # adding slope labels
+  # low irr 1 gal
+ geom_text(data = subset(arcto, irrigation == "low"), 
+            aes(x = 12, y = 19, label = "0.554"), 
+            color = "brown1", size = 4, fontface = "bold")+
+   # low irr 4 in
+   geom_text(data = subset(arcto, irrigation == "low"), 
+            aes(x = 17, y = 13, label = "0.382"), 
+            color = "deepskyblue", size = 4, fontface = "bold")+
+    # high irr 1 gal
+   geom_text(data = subset(arcto, irrigation == "high"), 
+            aes(x = 15, y = 15.5, label = "0.261"), 
+            color = "brown1", size = 4, fontface = "bold") +
+    # high irr 4 in
+  geom_text(data = subset(arcto, irrigation == "high"), 
+            aes(x = 17, y = 13, label = "0.284"), 
+            color = "deepskyblue", size = 4, fontface = "bold")
+```
+
+We can see that the plants in the low irrigation plot had the highest growth rate (PGI/time). 
+
+# Artemisia Growth Rate
+
+```{r}
+#creating a plot of growth rate by irrigation
+# split by irrigation
+ggplot(data = arte, aes(x = surv_month, y = growth_rate)) +
+  geom_jitter(aes(color = size), na.rm = TRUE) +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))+
+  labs(title = "Artemisia")+
+  facet_wrap(~irrigation, scales = "free", labeller = irr_labels) +
+    scale_x_continuous(name = "Survey Month", limits = c(1, 24)) +
+  scale_y_continuous(name = "Plant Growth Index", limits = c(1, 65))+
+   scale_color_manual(values = c("brown1", "deepskyblue"),
+                      name = " ",
+                     labels = c("1 gallon", "4 inch"))+
+ # adding slope lines
+  # high irr 1 gal
+  geom_abline(data = subset(arte, irrigation == "high"), 
+              aes(slope= 1.68335, intercept= 17.28893), 
+              color = "brown1") +
+  # high irr 4 in
+  geom_abline(data = subset(arte, irrigation == "high"), 
+              aes(slope = 1.664921, intercept= 10.83617), 
+              color = "deepskyblue")+
+  # low irr 4 in
+   geom_abline(data = subset(arte, irrigation == "low"), 
+              aes(slope = 1.992367, intercept= 11.42986), 
+              color = "deepskyblue")+
+  # low irr 1 gal
+  geom_abline(data = subset(arte_reframe, irrigation == "low"), 
+              aes(slope = 1.940563, intercept= 13.28498), 
+              color = "brown1") +
+   # adding slope labels
+  # low irr 1 gal
+ geom_text(data = subset(arcto, irrigation == "low"), 
+            aes(x = 19, y = 58, label = "1.941"), 
+            color = "brown1", size = 4, fontface = "bold")+
+   # low irr 4 in
+   geom_text(data = subset(arte, irrigation == "low"), 
+            aes(x = 17, y = 35, label = "1.992"), 
+            color = "deepskyblue", size = 4, fontface = "bold")+
+    # high irr 1 gal
+   geom_text(data = subset(arte, irrigation == "high"), 
+            aes(x = 18, y = 55, label = "1.683"), 
+            color = "brown1", size = 4, fontface = "bold") +
+    # high irr 4 in
+  geom_text(data = subset(arte, irrigation == "high"), 
+            aes(x = 17, y = 33, label = "1.665"), 
+            color = "deepskyblue", size = 4, fontface = "bold")
+```
+We can see that the plants in the low irrigation plot had a higher growth rate than those in the high irrigation plot. It's also interesting to note that the growth rates of the pot sizes within each irrigation level are quite similar to each other, indicating that pot size had little effect on the growth rate of Artemisia.
+
+# Ceanothus Growth Rate
+
+```{r}
+#creating a plot of growth rate by irrigation
+# split by irrigation
+ggplot(data = ceo, aes(x = surv_month, y = growth_rate)) +
+  geom_jitter(aes(color = size), na.rm = TRUE) +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))+
+  labs(title = "Ceanothus")+
+  facet_wrap(~irrigation, scales = "free", labeller = irr_labels) +
+    scale_x_continuous(name = "Survey Month", limits = c(1, 24)) +
+  scale_y_continuous(name = "Plant Growth Index", limits = c(1, 40))+
+   scale_color_manual(values = c("brown1", "deepskyblue"),
+                      name = " ",
+                     labels = c("1 gallon", "4 inch"))+
+ # adding slope lines
+  # high irr 1 gal
+  geom_abline(data = subset(ceo, irrigation == "high"), 
+              aes(slope= 0.858943, intercept= 16.40464), 
+              color = "brown1") +
+  # high irr 4 in
+  geom_abline(data = subset(ceo, irrigation == "high"), 
+              aes(slope = 0.929298, intercept= 15.07559), 
+              color = "deepskyblue")+
+  # low irr 4 in
+   geom_abline(data = subset(ceo, irrigation == "low"), 
+              aes(slope = 0.766181, intercept= 11.758), 
+              color = "deepskyblue")+
+  # low irr 1 gal
+  geom_abline(data = subset(arcto_reframe, irrigation == "low"), 
+              aes(slope = 0.999457, intercept= 12.89891), 
+              color = "brown1")+
+  # adding slope labels
+  # low irr 1 gal
+ geom_text(data = subset(ceo, irrigation == "low"), 
+            aes(x = 19, y = 36, label = "0.999"), 
+            color = "brown1", size = 4, fontface = "bold")+
+   # low irr 4 in
+   geom_text(data = subset(ceo, irrigation == "low"), 
+            aes(x = 17, y = 22, label = "0.766"), 
+            color = "deepskyblue", size = 4, fontface = "bold")+
+    # high irr 1 gal
+   geom_text(data = subset(ceo, irrigation == "high"), 
+            aes(x = 19, y = 36, label = "0.859"), 
+            color = "brown1", size = 4, fontface = "bold") +
+    # high irr 4 in
+  geom_text(data = subset(ceo, irrigation == "high"), 
+            aes(x = 17, y = 27, label = "0.929"), 
+            color = "deepskyblue", size = 4, fontface = "bold")
+```
+
+We can see that there is more variation in the Ceanothus growth rate, with the 1 gallon Ceanothus in the low irrigation plot having the highest growth rate while the 4 inch Ceanothus in the low irrigation plot have the lowest growth rate. This variation may show that 1 gallon plants preform better, especially when there is less irrigation, or it could be error due to the fact that predation on Ceanothus by deer was quite high. 
+
+# Diplacus Growth Rate
+```{r}
+#creating a plot of growth rate by irrigation
+# split by irrigation
+ggplot(data =  dip, aes(x = surv_month, y = growth_rate)) +
+  geom_jitter(aes(color = size), na.rm = TRUE) +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))+
+  labs(title = "Diplacus")+
+  facet_wrap(~irrigation, scales = "free", labeller = irr_labels) +
+    scale_x_continuous(name = "Survey Month", limits = c(1, 24)) +
+  scale_y_continuous(name = "Plant Growth Index", limits = c(1, 45))+
+   scale_color_manual(values = c("brown1", "deepskyblue"),
+                      name = " ",
+                     labels = c("1 gallon", "4 inch"))+
+  # adding slope lines
+  # high irr 1 gal
+  geom_abline(data = subset(dip, irrigation == "high"), 
+              aes(slope= 0.328162, intercept= 19.05336), 
+              color = "brown1") +
+  # high irr 4 in
+  geom_abline(data = subset(dip, irrigation == "high"), 
+              aes(slope = 0.063661067, intercept= 22.19639), 
+              color = "deepskyblue")+
+  # low irr 4 in
+   geom_abline(data = subset(dip, irrigation == "low"), 
+              aes(slope = 1.258064, intercept= 10.12307), 
+              color = "deepskyblue")+
+  # low irr 1 gal
+  geom_abline(data = subset(dip_reframe, irrigation == "low"), 
+              aes(slope = 0.731441, intercept= 14.17515), 
+              color = "brown1")+
+  # adding slope labels
+  # low irr 1 gal
+ geom_text(data = subset(dip, irrigation == "low"), 
+            aes(x = 17, y = 23, label = "0.731"), 
+            color = "brown1", size = 4, fontface = "bold")+
+   # low irr 4 in
+   geom_text(data = subset(dip, irrigation == "low"), 
+            aes(x = 20, y = 40, label = "1.258"), 
+            color = "deepskyblue", size = 4, fontface = "bold")+
+    # high irr 1 gal
+   geom_text(data = subset(dip, irrigation == "high"), 
+            aes(x = 20, y = 30, label = "0.328"), 
+            color = "brown1", size = 4, fontface = "bold") +
+    # high irr 4 in
+  geom_text(data = subset(dip, irrigation == "high"), 
+            aes(x = 12, y = 20, label = "0.064"), 
+            color = "deepskyblue", size = 4, fontface = "bold")
+```
+
+We can see that the Diplacus in the low irrigation plot had a much higher growth rate than those in the high irrigation plot. In the low irrigation we can see that the 4 inch plants outpreformed the 1 gallon plants, however the inverse is true in the high irrigation plot. This further confirms that initial pot size does not have a predictable effect on the plant's growth.
+
+# Salvia Growth Rate
+
+```{r}
+#creating a plot of growth rate by irrigation
+# split by irrigation
+ggplot(data =  salvia, aes(x = surv_month, y = growth_rate)) +
+  geom_jitter(aes(color = size), na.rm = TRUE) +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))+
+  labs(title = "Salvia")+
+  facet_wrap(~irrigation, scales = "free", labeller = irr_labels) +
+    scale_x_continuous(name = "Survey Month", limits = c(1, 24)) +
+  scale_y_continuous(name = "Plant Growth Index", limits = c(1, 65))+
+   scale_color_manual(values = c("brown1", "deepskyblue"),
+                      name = " ",
+                     labels = c("1 gallon", "4 inch"))+
+  # adding slope lines
+  # high irr 1 gal
+  geom_abline(data = subset(dip, irrigation == "high"), 
+              aes(slope= 1.432238, intercept= 25.03053), 
+              color = "brown1") +
+  # high irr 4 in
+  geom_abline(data = subset(dip, irrigation == "high"), 
+              aes(slope = 1.312352, intercept= 18.73221), 
+              color = "deepskyblue")+
+  # low irr 4 in
+   geom_abline(data = subset(dip, irrigation == "low"), 
+              aes(slope = 2.250896, intercept= 7.425395), 
+              color = "deepskyblue")+
+  # low irr 1 gal
+  geom_abline(data = subset(dip_reframe, irrigation == "low"), 
+              aes(slope = 1.873007401, intercept= 11.52011), 
+              color = "brown1")+
+   # adding slope labels
+  # low irr 1 gal
+ geom_text(data = subset(dip, irrigation == "low"), 
+            aes(x = 17, y = 36, label = "1.873"), 
+            color = "brown1", size = 4, fontface = "bold")+
+   # low irr 4 in
+   geom_text(data = subset(dip, irrigation == "low"), 
+            aes(x = 18, y = 56, label = "2.251"), 
+            color = "deepskyblue", size = 4, fontface = "bold")+
+    # high irr 1 gal
+   geom_text(data = subset(dip, irrigation == "high"), 
+            aes(x = 17, y = 55, label = "1.432"), 
+            color = "brown1", size = 4, fontface = "bold") +
+    # high irr 4 in
+  geom_text(data = subset(dip, irrigation == "high"), 
+            aes(x = 15, y = 32, label = "1.312"), 
+            color = "deepskyblue", size = 4, fontface = "bold")
+```
+
+

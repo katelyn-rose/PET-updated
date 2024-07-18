@@ -1,0 +1,936 @@
+---
+title: "Plant Est Trial Data"
+author: "Katie Miller"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse) # general usage
+library(here) # organization
+library(plotly) # interactive plots
+library(skimr) # quick glimpses at data
+library(naniar) # visualizing missing data
+library(magick) # inserting images into plots
+library(NatParksPalettes) # one example of color palette package
+library(patchwork) # putting plots together
+library(GGally)
+library(ggeffects)
+library(flextable) 
+library(car)
+library(broom)
+library(corrplot)
+```
+
+
+```{r}
+# reading in data
+pet_data <- read.csv(here("data", "plantcodefinal.csv"))
+```
+
+
+```{r}
+# initial plot to visualize dataset
+ggplot(data = pet_data, aes(x = surv_month, y = growth_rate, color = irrigation)) +
+       geom_jitter(na.rm = TRUE) +
+  theme_bw()+
+  facet_wrap(~species + size)
+```
+
+```{r}
+ggplot(data = pet_data, aes(x = irrigation, y = growth_rate, fill = size)) +
+  geom_boxplot()
+  theme_minimal()
+```
+
+
+```{r}
+# mean PGI by irrigation level
+pet_summary_irr <- pet_data %>% 
+group_by(irrigation) %>% 
+  summarize(mean_growth = mean(growth_rate),
+        sd_growth = sd(growth_rate),
+        var_growth = var(growth_rate),
+        count_growth = length(growth_rate), 
+        se_growth = sd_growth/sqrt(count_growth),
+        margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+
+# plotting relationship
+ggplot(data = pet_summary_irr, aes (y = mean_growth, x = irrigation, color = irrigation)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Irrigation Level",
+        y = "Mean PGI") +
+   theme_bw()
+```
+
+```{r}
+# mean PGI by size
+pet_summary_size <- pet_data %>% 
+group_by(size) %>% 
+  summarize(mean_growth = mean(growth_rate),
+        sd_growth = sd(growth_rate),
+        var_growth = var(growth_rate),
+        count_growth = length(growth_rate), 
+        se_growth = sd_growth/sqrt(count_growth),
+        margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+
+# plotting relationship
+ggplot(data = pet_summary_size, aes (y = mean_growth, x = size, color = size)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Pot Size",
+        y = "Mean PGI") +
+   theme_bw()
+```
+
+```{r}
+# isolate species data
+ arcto <- pet_data %>% 
+   filter(species %in% "arcto")
+ 
+ arte <- pet_data %>% 
+   filter(species %in% "arte")
+ 
+ ceo <- pet_data %>% 
+   filter(species %in% "ceo")
+ 
+ dip <- pet_data %>% 
+   filter(species %in% "dip")
+ 
+ salvia <- pet_data %>% 
+   filter(species %in% "salvia")
+```
+
+
+```{r}
+# isolated arcto mean PGI by irrigation
+arcto_irrigation <- arcto %>% 
+   group_by(irrigation) %>% 
+   summarize(mean_growth = mean(growth_rate),
+             sd_growth = sd(growth_rate),
+             var_growth = var(growth_rate),
+             count_growth = length(growth_rate),
+             se_growth = sd_growth/sqrt(count_growth),
+             margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+ 
+ # plotting relationship
+ ggplot(data = arcto_irrigation, aes (y = mean_growth, x = irrigation, color = irrigation)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Irrigation Level",
+        y = "Mean PGI",
+        title = "Arctostaphylos") +
+   theme_bw()
+```
+
+
+```{r}
+# isolated arcto mean PGI by pot size
+arcto_size <- arcto %>% 
+   group_by(size) %>% 
+   summarize(mean_growth = mean(growth_rate),
+             sd_growth = sd(growth_rate),
+             var_growth = var(growth_rate),
+             count_growth = length(growth_rate),
+             se_growth = sd_growth/sqrt(count_growth),
+             margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+ 
+ # plotting relationship
+ ggplot(data = arcto_size, aes (y = mean_growth, x = size, color = size)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Pot Size",
+        y = "Mean PGI",
+        title = "Arctostaphylos") +
+   theme_bw()
+```
+
+```{r}
+# anovas for arcto size and irrigation
+ arcto_irrigation_anova <- aov(growth_rate ~ irrigation, data = arcto)
+ 
+ arcto_size_anova <- aov(growth_rate ~ size, data = arcto)
+
+summary(arcto_irrigation_anova)
+summary(arcto_size_anova)
+```
+
+```{r}
+arte_irrigation <- arte %>% 
+   group_by(irrigation) %>% 
+   summarize(mean_growth = mean(growth_rate),
+             sd_growth = sd(growth_rate),
+             var_growth = var(growth_rate),
+             count_growth = length(growth_rate),
+             se_growth = sd_growth/sqrt(count_growth),
+             margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+ 
+ # plotting relationship
+ ggplot(data = arte_irrigation, aes (y = mean_growth, x = irrigation, color = irrigation)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Irrigation Level",
+        y = "Mean PGI",
+        title = "Artemisia") +
+   theme_bw()
+```
+
+
+```{r}
+arte_size <- arte %>% 
+   group_by(size) %>% 
+   summarize(mean_growth = mean(growth_rate),
+             sd_growth = sd(growth_rate),
+             var_growth = var(growth_rate),
+             count_growth = length(growth_rate),
+             se_growth = sd_growth/sqrt(count_growth),
+             margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+ 
+ # plotting relationship
+ ggplot(data = arte_size, aes (y = mean_growth, x = size, color = size)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Pot Size",
+        y = "Mean PGI",
+        title = "Artemisia") +
+   theme_bw()
+```
+
+```{r}
+# anovas for arte size and irrigation
+ arte_irrigation_anova <- aov(growth_rate ~ irrigation, data = arte)
+ 
+ arte_size_anova <- aov(growth_rate ~ size, data = arte)
+
+summary(arte_irrigation_anova)
+summary(arte_size_anova)
+```
+
+```{r}
+ceo_irrigation <- ceo %>% 
+   group_by(irrigation) %>% 
+   summarize(mean_growth = mean(growth_rate),
+             sd_growth = sd(growth_rate),
+             var_growth = var(growth_rate),
+             count_growth = length(growth_rate),
+             se_growth = sd_growth/sqrt(count_growth),
+             margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+ 
+ # plotting relationship
+ ggplot(data = ceo_irrigation, aes (y = mean_growth, x = irrigation, color = irrigation)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Irrigation Level",
+        y = "Mean PGI",
+        title = "Ceanothus") +
+   theme_bw()
+```
+
+
+```{r}
+ceo_size <- ceo %>% 
+   group_by(size) %>% 
+   summarize(mean_growth = mean(growth_rate),
+             sd_growth = sd(growth_rate),
+             var_growth = var(growth_rate),
+             count_growth = length(growth_rate),
+             se_growth = sd_growth/sqrt(count_growth),
+             margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+ 
+ # plotting relationship
+ ggplot(data = ceo_size, aes (y = mean_growth, x = size, color = size)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Pot Size",
+        y = "Mean PGI",
+        title = "Ceanothus") +
+   theme_bw()
+```
+
+```{r}
+# anovas for ceo size and irrigation
+ ceo_irrigation_anova <- aov(growth_rate ~ irrigation, data = ceo)
+ 
+ ceo_size_anova <- aov(growth_rate ~ size, data = ceo)
+
+summary(ceo_irrigation_anova)
+summary(ceo_size_anova)
+```
+
+```{r}
+dip_irrigation <- dip %>% 
+   group_by(irrigation) %>% 
+   summarize(mean_growth = mean(growth_rate),
+             sd_growth = sd(growth_rate),
+             var_growth = var(growth_rate),
+             count_growth = length(growth_rate),
+             se_growth = sd_growth/sqrt(count_growth),
+             margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+ 
+ # plotting relationship
+ ggplot(data = dip_irrigation, aes (y = mean_growth, x = irrigation, color = irrigation)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Irrigation Level",
+        y = "Mean PGI",
+        title = "Diplacus") +
+   theme_bw()
+```
+
+
+```{r}
+dip_size <- dip %>% 
+   group_by(size) %>% 
+   summarize(mean_growth = mean(growth_rate),
+             sd_growth = sd(growth_rate),
+             var_growth = var(growth_rate),
+             count_growth = length(growth_rate),
+             se_growth = sd_growth/sqrt(count_growth),
+             margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+ 
+ # plotting relationship
+ ggplot(data = dip_size, aes (y = mean_growth, x = size, color = size)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Pot Size",
+        y = "Mean PGI",
+        title = "Diplacus") +
+   theme_bw()
+```
+
+```{r}
+# anovas for dip size and irrigation
+ dip_irrigation_anova <- aov(growth_rate ~ irrigation, data = dip)
+ 
+ dip_size_anova <- aov(growth_rate ~ size, data = dip)
+
+summary(dip_irrigation_anova)
+summary(dip_size_anova)
+```
+
+```{r}
+salvia_irrigation <- salvia %>% 
+   group_by(irrigation) %>% 
+   summarize(mean_growth = mean(growth_rate),
+             sd_growth = sd(growth_rate),
+             var_growth = var(growth_rate),
+             count_growth = length(growth_rate),
+             se_growth = sd_growth/sqrt(count_growth),
+             margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+ 
+ # plotting relationship
+ ggplot(data = salvia_irrigation, aes (y = mean_growth, x = irrigation, color = irrigation)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Irrigation Level",
+        y = "Mean PGI",
+        title = "Salvia") +
+   theme_bw()
+```
+
+
+```{r}
+salvia_size <- salvia %>% 
+   group_by(size) %>% 
+   summarize(mean_growth = mean(growth_rate),
+             sd_growth = sd(growth_rate),
+             var_growth = var(growth_rate),
+             count_growth = length(growth_rate),
+             se_growth = sd_growth/sqrt(count_growth),
+             margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+ 
+ # plotting relationship
+ ggplot(data = salvia_size, aes (y = mean_growth, x = size, color = size)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Pot Size",
+        y = "Mean PGI",
+        title = "Salvia") +
+   theme_bw()
+```
+
+```{r}
+# anovas for salvia size and irrigation
+ salvia_irrigation_anova <- aov(growth_rate ~ irrigation, data = salvia)
+ 
+ salvia_size_anova <- aov(growth_rate ~ size, data = salvia)
+
+summary(salvia_irrigation_anova)
+summary(salvia_size_anova)
+```
+
+
+# pannel plot containing all means
+
+# growth rate = slope, =/= each point (which is PGI) 
+find slope of irrigation to determine growth rate 
+
+# residuals plot over time (Delta growth rate over time for pot size)
+
+
+
+```{r}
+# initial plot to visualize dataset
+ggplot(data = arcto, aes(x = surv_month, y = growth_rate, color = irrigation)) +
+       geom_line(na.rm = FALSE) +
+  theme_bw()+
+  facet_wrap(~size)
+```
+
+```{r}
+# initial plot to visualize dataset w/o med
+#remove med irrigation from entire dataset
+pet_reframe <- pet_data %>% 
+   filter(irrigation %in% c("high", "low"))
+
+#plot new 
+ggplot(data = pet_reframe, aes(x = surv_month, y = growth_rate, color = irrigation)) +
+       geom_jitter(na.rm = TRUE) +
+  theme_bw()+
+  facet_wrap(~species + size)
+```
+
+```{r}
+# removing medium irrigation
+arcto_reframe <- arcto %>% 
+   filter(irrigation %in% c("high", "low"))
+```
+
+```{r}
+# isolated arcto, removed medium irrigation, mean PGI by irrigation
+arcto_reframe_irr <- arcto_reframe %>% 
+   group_by(irrigation) %>% 
+   summarize(mean_growth = mean(growth_rate),
+             sd_growth = sd(growth_rate),
+             var_growth = var(growth_rate),
+             count_growth = length(growth_rate),
+             se_growth = sd_growth/sqrt(count_growth),
+             margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+ 
+ # plotting relationship
+ ggplot(data = arcto_reframe_irr, aes (y = mean_growth, x = irrigation, color = irrigation)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Irrigation Level",
+        y = "Mean PGI",
+        title = "Arctostaphylos") +
+   theme_bw()
+```
+
+```{r}
+# isolated arcto, removed medium irrigation, mean PGI by pot size
+arcto_reframe_size <- arcto_reframe %>% 
+   group_by(size) %>% 
+   summarize(mean_growth = mean(growth_rate),
+             sd_growth = sd(growth_rate),
+             var_growth = var(growth_rate),
+             count_growth = length(growth_rate),
+             se_growth = sd_growth/sqrt(count_growth),
+             margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+ 
+ # plotting relationship
+ ggplot(data = arcto_reframe_size, aes (y = mean_growth, x = size, color = size)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Pot Size",
+        y = "Mean PGI",
+        title = "Arctostaphylos") +
+   theme_bw()
+```
+
+```{r}
+# anovas for arcto size and irrigation
+ arcto_reframe_irr_anova <- aov(growth_rate ~ irrigation, data = arcto_reframe)
+ 
+ arcto_reframe_size_anova <- aov(growth_rate ~ size, data = arcto_reframe)
+
+summary(arcto_reframe_irr_anova)
+summary(arcto_reframe_size_anova)
+```
+
+Arte 
+```{r}
+# removing medium irrigation
+arte_reframe <- arte %>% 
+   filter(irrigation %in% c("high", "low"))
+```
+
+```{r}
+# isolated arte, removed medium irrigation, mean PGI by irrigation
+arte_reframe_irr <- arte_reframe %>% 
+   group_by(irrigation) %>% 
+   summarize(mean_growth = mean(growth_rate),
+             sd_growth = sd(growth_rate),
+             var_growth = var(growth_rate),
+             count_growth = length(growth_rate),
+             se_growth = sd_growth/sqrt(count_growth),
+             margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+ 
+ # plotting relationship
+ ggplot(data = arte_reframe_irr, aes (y = mean_growth, x = irrigation, color = irrigation)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Irrigation Level",
+        y = "Mean PGI",
+        title = "Artemisia") +
+   theme_bw()
+```
+
+```{r}
+# isolated arte, removed medium irrigation, mean PGI by pot size
+arte_reframe_size <- arte_reframe %>% 
+   group_by(size) %>% 
+   summarize(mean_growth = mean(growth_rate),
+             sd_growth = sd(growth_rate),
+             var_growth = var(growth_rate),
+             count_growth = length(growth_rate),
+             se_growth = sd_growth/sqrt(count_growth),
+             margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+ 
+ # plotting relationship
+ ggplot(data = arte_reframe_size, aes (y = mean_growth, x = size, color = size)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Pot Size",
+        y = "Mean PGI",
+        title = "Artemisia") +
+   theme_bw()
+```
+
+```{r}
+# anovas for arte size and irrigation
+ arte_reframe_irr_anova <- aov(growth_rate ~ irrigation, data = arte_reframe)
+ 
+ arte_reframe_size_anova <- aov(growth_rate ~ size, data = arte_reframe)
+
+summary(arte_reframe_irr_anova)
+summary(arte_reframe_size_anova)
+```
+
+ceo 
+
+```{r}
+# removing medium irrigation
+ceo_reframe <- ceo %>% 
+   filter(irrigation %in% c("high", "low"))
+```
+
+```{r}
+# isolated ceo, removed medium irrigation, mean PGI by irrigation
+ceo_reframe_irr <- ceo_reframe %>% 
+   group_by(irrigation) %>% 
+   summarize(mean_growth = mean(growth_rate),
+             sd_growth = sd(growth_rate),
+             var_growth = var(growth_rate),
+             count_growth = length(growth_rate),
+             se_growth = sd_growth/sqrt(count_growth),
+             margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+ 
+ # plotting relationship
+ ggplot(data = ceo_reframe_irr, aes (y = mean_growth, x = irrigation, color = irrigation)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Irrigation Level",
+        y = "Mean PGI",
+        title = "Ceanothus") +
+   theme_bw()
+```
+
+```{r}
+# isolated ceo, removed medium irrigation, mean PGI by pot size
+ceo_reframe_size <- ceo_reframe %>% 
+   group_by(size) %>% 
+   summarize(mean_growth = mean(growth_rate),
+             sd_growth = sd(growth_rate),
+             var_growth = var(growth_rate),
+             count_growth = length(growth_rate),
+             se_growth = sd_growth/sqrt(count_growth),
+             margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+ 
+ # plotting relationship
+ ggplot(data = ceo_reframe_size, aes (y = mean_growth, x = size, color = size)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Pot Size",
+        y = "Mean PGI",
+        title = "Ceanothus") +
+   theme_bw()
+```
+
+```{r}
+# anovas for ceo size and irrigation
+ ceo_reframe_irr_anova <- aov(growth_rate ~ irrigation, data = ceo_reframe)
+ 
+ ceo_reframe_size_anova <- aov(growth_rate ~ size, data = ceo_reframe)
+
+summary(ceo_reframe_irr_anova)
+summary(ceo_reframe_size_anova)
+```
+
+dip 
+
+```{r}
+# removing medium irrigation
+dip_reframe <- dip %>% 
+   filter(irrigation %in% c("high", "low"))
+```
+
+```{r}
+# isolated dip, removed medium irrigation, mean PGI by irrigation
+dip_reframe_irr <- dip_reframe %>% 
+   group_by(irrigation) %>% 
+   summarize(mean_growth = mean(growth_rate),
+             sd_growth = sd(growth_rate),
+             var_growth = var(growth_rate),
+             count_growth = length(growth_rate),
+             se_growth = sd_growth/sqrt(count_growth),
+             margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+ 
+ # plotting relationship
+ ggplot(data = dip_reframe_irr, aes (y = mean_growth, x = irrigation, color = irrigation)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Irrigation Level",
+        y = "Mean PGI",
+        title = "Diplacus") +
+   theme_bw()
+```
+
+```{r}
+# isolated dip, removed medium irrigation, mean PGI by pot size
+dip_reframe_size <- dip_reframe %>% 
+   group_by(size) %>% 
+   summarize(mean_growth = mean(growth_rate),
+             sd_growth = sd(growth_rate),
+             var_growth = var(growth_rate),
+             count_growth = length(growth_rate),
+             se_growth = sd_growth/sqrt(count_growth),
+             margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+ 
+ # plotting relationship
+ ggplot(data = dip_reframe_size, aes (y = mean_growth, x = size, color = size)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Pot Size",
+        y = "Mean PGI",
+        title = "Diplacus") +
+   theme_bw()
+```
+
+```{r}
+# anovas for dip size and irrigation
+ dip_reframe_irr_anova <- aov(growth_rate ~ irrigation, data = dip_reframe)
+ 
+ dip_reframe_size_anova <- aov(growth_rate ~ size, data = dip_reframe)
+
+summary(dip_reframe_irr_anova)
+summary(dip_reframe_size_anova)
+```
+
+
+
+salvia 
+```{r}
+# removing medium irrigation
+salvia_reframe <- salvia %>% 
+   filter(irrigation %in% c("high", "low"))
+```
+
+```{r}
+# isolated salvia, removed medium irrigation, mean PGI by irrigation
+salvia_reframe_irr <- salvia_reframe %>% 
+   group_by(irrigation) %>% 
+   summarize(mean_growth = mean(growth_rate),
+             sd_growth = sd(growth_rate),
+             var_growth = var(growth_rate),
+             count_growth = length(growth_rate),
+             se_growth = sd_growth/sqrt(count_growth),
+             margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+ 
+ # plotting relationship
+ ggplot(data = salvia_reframe_irr, aes (y = mean_growth, x = irrigation, color = irrigation)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Irrigation Level",
+        y = "Mean PGI",
+        title = "Salvia") +
+   theme_bw()
+```
+
+```{r}
+# isolated salvia, removed medium irrigation, mean PGI by pot size
+salvia_reframe_size <- salvia_reframe %>% 
+   group_by(size) %>% 
+   summarize(mean_growth = mean(growth_rate),
+             sd_growth = sd(growth_rate),
+             var_growth = var(growth_rate),
+             count_growth = length(growth_rate),
+             se_growth = sd_growth/sqrt(count_growth),
+             margin_growth = qt(0.95, df = count_growth - 1) * se_growth)
+ 
+ # plotting relationship
+ ggplot(data = salvia_reframe_size, aes (y = mean_growth, x = size, color = size)) +
+   geom_point() +
+   geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
+   labs(x = "Pot Size",
+        y = "Mean PGI",
+        title = "Salvia") +
+   theme_bw()
+```
+
+```{r}
+# anovas for dip size and irrigation
+ salvia_reframe_irr_anova <- aov(growth_rate ~ irrigation, data = salvia_reframe)
+ 
+ salvia_reframe_size_anova <- aov(growth_rate ~ size, data = salvia_reframe)
+
+summary(salvia_reframe_irr_anova)
+summary(salvia_reframe_size_anova)
+```
+# growth rate Arcto
+
+```{r}
+# removing medium irrigation
+arcto_reframe <- arcto %>% 
+   filter(irrigation %in% c("high", "low")) %>%
+  mutate(size = ifelse(size != "1gal", "4in", size))
+```
+
+
+
+```{r}
+# plot to show growth rate of arcto
+# all interactions
+ggplot(data = arcto_reframe, aes(x = surv_month, y = growth_rate, color = interaction(size, irrigation))) +
+       geom_jitter(na.rm = TRUE) +
+  theme_bw()+
+ labs(title = "Arctostaphylos")+
+    scale_x_continuous(name = "Survey Month", limits = c(1, 25)) +
+  scale_y_continuous(name = "Plant Growth Index", limits = c(1, 25))+
+   scale_color_manual(values = c("brown1", "deepskyblue", "chartreuse3", "purple"),
+                      name = " ",
+                     labels = c("Low 1 gal", "Low 4 inch", "High 1 gallon", "High 4 inch")) +
+  geom_abline(slope=0.284, intercept=9.285, color = "brown1")+
+geom_abline(slope=0.382, intercept=8.794, color = "purple")+
+geom_abline(slope=0.261, intercept=10.056, color = "deepskyblue")+
+geom_abline(slope=0.554, intercept=10.385, color = "chartreuse3")
+```
+
+```{r}
+#creating a plot of growth rate by irrigation
+# split by irrigation
+ggplot(data = arcto_reframe, aes(x = surv_month, y = growth_rate)) +
+  geom_jitter(aes(color = interaction(size, irrigation)), na.rm = TRUE) +
+  theme_minimal() +
+  labs(title = "Arctostaphylos")+
+  facet_wrap(~irrigation, scales = "free") +
+    scale_x_continuous(name = "Survey Month", limits = c(1, 25)) +
+  scale_y_continuous(name = "Plant Growth Index", limits = c(1, 25))+
+   scale_color_manual(values = c("brown1", "deepskyblue", "chartreuse3", "purple"),
+                      name = " ",
+                     labels = c("1 gallon", "4 inch", "1 gallon", "4 inch")) +  
+  # adding slope lines
+  # high irr 1 gal
+  geom_abline(data = subset(arcto_reframe, irrigation == "high"), 
+              aes(slope=0.261, intercept=10.056), 
+              color = "brown1") +
+  # high irr 4 in
+  geom_abline(data = subset(arcto_reframe, irrigation == "high"), 
+              aes(slope=0.284, intercept=9.285), 
+              color = "deepskyblue")+
+  # low irr 4 in
+   geom_abline(data = subset(arcto_reframe, irrigation == "low"), 
+              aes(slope=0.382, intercept=8.794), 
+              color = "purple")+
+  # low irr 1 gal
+  geom_abline(data = subset(arcto_reframe, irrigation == "low"), 
+              aes(slope=0.554, intercept=10.385), 
+              color = "chartreuse3")+
+  # adding slope labels
+ geom_text(data = subset(arcto_reframe, irrigation == "low"), 
+            aes(x = 12, y = 19, label = "0.554"), 
+            color = "chartreuse3", size = 4, fontface = "bold")+
+   # low irr 4 in
+   geom_text(data = subset(arcto_reframe, irrigation == "low"), 
+            aes(x = 17, y = 13, label = "0.382"), 
+            color = "purple", size = 4, fontface = "bold")+
+    # high irr 1 gal
+   geom_text(data = subset(arcto_reframe, irrigation == "high"), 
+            aes(x = 15, y = 15.5, label = "0.261"), 
+            color = "brown1", size = 4, fontface = "bold") +
+    # high irr 4 in
+  geom_text(data = subset(arcto_reframe, irrigation == "high"), 
+            aes(x = 17, y = 13, label = "0.284"), 
+            color = "deepskyblue", size = 4, fontface = "bold")
+```
+```{r}
+#creating a plot of growth rate by size
+# split by pot size
+ggplot(data = arcto_reframe, aes(x = surv_month, y = growth_rate)) +
+  geom_jitter(aes(color = interaction(size, irrigation)), na.rm = TRUE) +
+  theme_bw() +
+  labs(title = "Arctostaphylos")+
+  facet_wrap(~size, scales = "free") +
+    scale_x_continuous(name = "Survey Month", limits = c(1, 25)) +
+  scale_y_continuous(name = "Plant Growth Index", limits = c(1, 25))+
+   scale_color_manual(values = c("brown1", "chartreuse3", "deepskyblue", "purple"),
+                      name = " ",
+                     labels = c("High 1 gal", "High 4in", "Low 1gal", "low 4 in")) +  
+  # adding slope lines
+  geom_abline(data = subset(arcto_reframe, size == "1gal"), 
+              aes(slope=0.261, intercept=10.056), 
+              color = "brown1") +
+  geom_abline(data = subset(arcto_reframe, size == "4in"), 
+              aes(slope=0.284, intercept=9.285), 
+              color = "chartreuse3")+
+   geom_abline(data = subset(arcto_reframe, size == "4in"), 
+              aes(slope=0.382, intercept=8.794), 
+              color = "purple")+
+  geom_abline(data = subset(arcto_reframe, size == "1gal"), 
+              aes(slope=0.554, intercept=10.385), 
+              color = "deepskyblue")+
+  # adding slope labels
+ geom_text(data = subset(arcto_reframe, size == "4in"), 
+            aes(x = 18, y = 13, label = "0.284"), 
+            color = "chartreuse3", size = 4, fontface = "bold")+
+   geom_text(data = subset(arcto_reframe, size == "4in"), 
+            aes(x = 21, y = 19, label = "0.382"), 
+            color = "purple", size = 4, fontface = "bold")
+```
+
+```{r}
+# plot to show growth rate of arcto
+# split by irrigation and pot size
+ggplot(data = arcto_reframe, aes(x = surv_month, y = growth_rate, color = interaction(size, irrigation))) +
+       geom_jitter(na.rm = TRUE) +
+  theme_bw() +
+  labs(title = "Arctostaphylos")+
+  facet_wrap(~irrigation, scales = "free") +
+    scale_x_continuous(name = "Survey Month", limits = c(1, 25)) +
+  scale_y_continuous(name = "Plant Growth Index", limits = c(1, 25))+
+   scale_color_manual(values = c("brown1", "deepskyblue", "chartreuse3", "purple"),
+                      name = " ",
+                     labels = c("1 gallon", "4 inch", "1 gallon", "4 inch")) + 
+  facet_grid(size ~ irrigation)+
+ # adding slope lines
+  geom_abline(data = subset(arcto_reframe, irrigation == "high" & size == "1gal"), 
+              aes(slope=0.261, intercept=10.056), 
+              color = "brown1")+
+  geom_abline(data = subset(arcto_reframe, irrigation == "high" & size == "4in"), 
+              aes(slope=0.284, intercept=9.285), 
+              color = "deepskyblue")+
+   geom_abline(data = subset(arcto_reframe, irrigation == "low" & size == "4in"), 
+              aes(slope=0.382, intercept=8.794), 
+              color = "purple")+
+  geom_abline(data = subset(arcto_reframe, irrigation == "low" & size == "1gal"), 
+              aes(slope=0.554, intercept=10.385), 
+              color = "chartreuse3")
+ 
+```
+
+
+
+```{r}
+#creating a plot of growth rate by irrigation
+# split by irrigation
+ggplot(data = arcto_reframe, aes(x = surv_month, y = growth_rate)) +
+  geom_jitter(aes(color = interaction(size, irrigation)), na.rm = TRUE) +
+  theme_minimal() +
+  labs(title = "Arctostaphylos")+
+  facet_wrap(~irrigation, scales = "free") +
+    scale_x_continuous(name = "Survey Month", limits = c(1, 25)) +
+  scale_y_continuous(name = "Plant Growth Index", limits = c(1, 25))+
+   scale_color_manual(values = c("brown1", "deepskyblue","brown1", "deepskyblue"),
+                      name = " ",
+                     labels = c("1 gallon", "4 inch")) +  
+  # adding slope lines
+  geom_abline(data = subset(arcto_reframe, irrigation == "high"), 
+              aes(slope=0.261, intercept=10.056), 
+              color = "brown1") +
+  geom_abline(data = subset(arcto_reframe, irrigation == "high"), 
+              aes(slope=0.284, intercept=9.285), 
+              color = "deepskyblue")+
+   geom_abline(data = subset(arcto_reframe, irrigation == "low"), 
+              aes(slope=0.382, intercept=8.794), 
+              color = "deepskyblue")+
+  geom_abline(data = subset(arcto_reframe, irrigation == "low"), 
+              aes(slope=0.554, intercept=10.385), 
+              color = "brown1")+
+  # adding slope labels
+ geom_text(data = subset(arcto_reframe, irrigation == "low"), 
+            aes(x = 12, y = 19, label = "0.554"), 
+            color = "brown1", size = 4, fontface = "bold")+
+  
+   geom_text(data = subset(arcto_reframe, irrigation == "low"), 
+            aes(x = 17, y = 13, label = "0.382"), 
+            color = "deepskyblue", size = 4, fontface = "bold")+
+  
+   geom_text(data = subset(arcto_reframe, irrigation == "high"), 
+            aes(x = 15, y = 15.5, label = "0.261"), 
+            color = "brown1", size = 4, fontface = "bold") +
+   
+  geom_text(data = subset(arcto_reframe, irrigation == "high"), 
+            aes(x = 17, y = 13, label = "0.284"), 
+            color = "deepskyblue", size = 4, fontface = "bold")
+```
+
+
+# growth rate Arte
+
+
+```{r}
+# removing medium irrigation
+arte_reframe <- arte %>% 
+   filter(irrigation %in% c("high", "low")) %>%
+  mutate(size = ifelse(size != "1gal", "4in", size))
+```
+
+
+```{r}
+#creating a plot of growth rate by irrigation
+# split by irrigation
+ggplot(data = arte_reframe, aes(x = surv_month, y = growth_rate)) +
+  geom_jitter(aes(color = interaction(size, irrigation)), na.rm = TRUE) +
+  theme_minimal() +
+  labs(title = "Artemisia")+
+  facet_wrap(~irrigation, scales = "free") +
+    scale_x_continuous(name = "Survey Month", limits = c(1, 25)) +
+  scale_y_continuous(name = "Plant Growth Index", limits = c(1, 60))+
+   scale_color_manual(values = c("brown1", "deepskyblue", "chartreuse3", "purple"),
+                      name = " ",
+                     labels = c("1 gallon", "4 inch", "1 gallon", "4 inch")) +  
+  # adding slope lines
+  geom_abline(data = subset(arte_reframe, irrigation == "high"), 
+              aes(slope=0.261, intercept=10.056), 
+              color = "brown1") +
+  geom_abline(data = subset(arte_reframe, irrigation == "high"), 
+              aes(slope=0.284, intercept=9.285), 
+              color = "deepskyblue")+
+   geom_abline(data = subset(arte_reframe, irrigation == "low"), 
+              aes(slope=0.382, intercept=8.794), 
+              color = "purple")+
+  geom_abline(data = subset(arte_reframe, irrigation == "low"), 
+              aes(slope=0.554, intercept=10.385), 
+              color = "chartreuse3")+
+  # adding slope labels
+ geom_text(data = subset(arte_reframe, irrigation == "low"), 
+            aes(x = 12, y = 19, label = "0.554"), 
+            color = "chartreuse3", size = 4, fontface = "bold")+
+  
+   geom_text(data = subset(arte_reframe, irrigation == "low"), 
+            aes(x = 17, y = 13, label = "0.382"), 
+            color = "purple", size = 4, fontface = "bold")+
+  
+   geom_text(data = subset(arte_reframe, irrigation == "high"), 
+            aes(x = 15, y = 15.5, label = "0.261"), 
+            color = "brown1", size = 4, fontface = "bold") +
+   
+  geom_text(data = subset(arte_reframe, irrigation == "high"), 
+            aes(x = 17, y = 13, label = "0.284"), 
+            color = "deepskyblue", size = 4, fontface = "bold")
+```
