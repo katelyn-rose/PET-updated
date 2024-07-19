@@ -1,7 +1,14 @@
 ---
-title: "pet final"
-output: html_document
-date: "2024-06-18"
+title: "Stanley Smith Plant Establishment Trial"
+author: "Katie Miller"
+format:
+  html:
+    toc: true
+    toc-location: left
+    code-fold: true
+execute:
+  message: false
+  warning: false
 ---
 
 ```{r}
@@ -25,12 +32,18 @@ library(corrplot)
 ```{r}
 # reading in data
 pet_data <- read.csv(here("data", "plantcodefinal.csv"))
-```
 
-```{r}
 # cleaning data for analysis
 pet_data_clean <-  pet_data %>% 
    filter(irrigation %in% c("high", "low"))
+
+sp_labels <- labeller(
+  species = c(
+    arcto = "Arctostaphylos",
+    arte = "Artemisia",
+    ceo = "Ceanothus",
+    dip = "Diplacus",
+    salvia = "Salvia"))
 ```
 
 
@@ -366,14 +379,13 @@ We can see there is no significant difference in the mean growth rate between po
 
 The mean of the plant growth index flattens the data and removes the seasonal oscillations inherent this time-series data. We can also look at the growth rate of each treatment by taking the slope of the line representing the PGI over time. This serves to visualize the inches of growth per month for each species.
 
-#Arctostaphylos Growth Rate
+# Arctostaphylos Growth Rate
 
 ```{r}
 irr_labels <- labeller(
   irrigation = c(
     high = "High Irrigation",
     low = "Low Irrigation"))
-
 ```
 
 ```{r}
@@ -404,7 +416,7 @@ ggplot(data = arcto, aes(x = surv_month, y = growth_rate)) +
               aes(slope=0.382, intercept=8.794), 
               color = "deepskyblue")+
   # low irr 1 gal
-  geom_abline(data = subset(arcto_reframe, irrigation == "low"), 
+  geom_abline(data = subset(arcto, irrigation == "low"), 
               aes(slope=0.554, intercept=10.385), 
               color = "brown1")+
   # adding slope labels
@@ -458,7 +470,7 @@ ggplot(data = arte, aes(x = surv_month, y = growth_rate)) +
               aes(slope = 1.992367, intercept= 11.42986), 
               color = "deepskyblue")+
   # low irr 1 gal
-  geom_abline(data = subset(arte_reframe, irrigation == "low"), 
+  geom_abline(data = subset(arte, irrigation == "low"), 
               aes(slope = 1.940563, intercept= 13.28498), 
               color = "brown1") +
    # adding slope labels
@@ -511,7 +523,7 @@ ggplot(data = ceo, aes(x = surv_month, y = growth_rate)) +
               aes(slope = 0.766181, intercept= 11.758), 
               color = "deepskyblue")+
   # low irr 1 gal
-  geom_abline(data = subset(arcto_reframe, irrigation == "low"), 
+  geom_abline(data = subset(arcto, irrigation == "low"), 
               aes(slope = 0.999457, intercept= 12.89891), 
               color = "brown1")+
   # adding slope labels
@@ -564,7 +576,7 @@ ggplot(data =  dip, aes(x = surv_month, y = growth_rate)) +
               aes(slope = 1.258064, intercept= 10.12307), 
               color = "deepskyblue")+
   # low irr 1 gal
-  geom_abline(data = subset(dip_reframe, irrigation == "low"), 
+  geom_abline(data = subset(dip, irrigation == "low"), 
               aes(slope = 0.731441, intercept= 14.17515), 
               color = "brown1")+
   # adding slope labels
@@ -618,7 +630,7 @@ ggplot(data =  salvia, aes(x = surv_month, y = growth_rate)) +
               aes(slope = 2.250896, intercept= 7.425395), 
               color = "deepskyblue")+
   # low irr 1 gal
-  geom_abline(data = subset(dip_reframe, irrigation == "low"), 
+  geom_abline(data = subset(dip, irrigation == "low"), 
               aes(slope = 1.873007401, intercept= 11.52011), 
               color = "brown1")+
    # adding slope labels
