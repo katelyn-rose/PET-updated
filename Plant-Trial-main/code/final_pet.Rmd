@@ -31,11 +31,12 @@ library(corrplot)
 
 ```{r}
 # reading in data
-pet_data <- read.csv(here("data", "plantcodefinal.csv"))
+pet_data <- read.csv(here("Plant-Trial-main", "data", "plantcodefinal.csv"))
 
 # cleaning data for analysis
 pet_data_clean <-  pet_data %>% 
    filter(irrigation %in% c("high", "low"))
+  
 
 sp_labels <- labeller(
   species = c(
@@ -44,6 +45,14 @@ sp_labels <- labeller(
     ceo = "Ceanothus",
     dip = "Diplacus",
     salvia = "Salvia"))
+
+
+month_labels <- c("May", "June", "July", "August", "September", "October", "November", "December", "January", "February", "March", "April", "May", "June", "August", "September", "October", "November", "December", "January", "February", "March", "Apr")
+
+selected_breaks <- c(1, 5, 10, 15, 20, 23)
+# Define the corresponding labels for these breaks
+selected_labels <- month_labels[selected_breaks]
+
 ```
 
 
@@ -52,13 +61,16 @@ sp_labels <- labeller(
 ggplot(data = pet_data_clean, aes(x = surv_month, y = growth_rate, color = irrigation)) +
        geom_jitter(na.rm = TRUE) +
   theme_bw()+
-  facet_wrap(~species + size) +
+  facet_wrap(~species + size, labeller = sp_labels) +
   labs(x = "Survey Month",
-        y = "Plant Growth Index (PGI)")
+        y = "Plant Growth Index (PGI)")+
+  scale_color_manual(values = c("brown1", "deepskyblue"),
+                      name = "Irrigation Level",
+                     labels = c("High", "Low"))
 ```
-##Showing Mean PGI by Species and Irrigation Level
+# Mean PGI by Species and Irrigation Level
 
-#Overall
+## Overall
 
 ```{r}
 # mean PGI by irrigation level
@@ -100,7 +112,7 @@ Not very clear, let's isolate by species.
    filter(species %in% "salvia")
 ```
 
-#Arctostaphylos Mean Plant Growth Index by Pot Size and Irrigation
+## Arctostaphylos Mean Plant Growth Index by Pot Size and Irrigation
 ```{r}
 # isolated arcto mean PGI by irrigation
 arcto_irrigation <- arcto %>% 
@@ -156,7 +168,7 @@ summary(arcto_size_anova)
 
 We can see that the Acrtostaphylos in the low irrigation plot had a significantly higher mean plant growth index than those in the high irrigation plot. The Acrtostaphylos which started in 1 gallon pots had a significantly higher mean plant growth index than those started in 4 inch pots.
 
-#Artemisia Mean Plant Growth Index by Pot Size and Irrigation
+## Artemisia Mean Plant Growth Index by Pot Size and Irrigation
 ```{r}
 # isolated arte mean PGI by irrigation
 arte_irrigation <- arte %>% 
@@ -211,7 +223,7 @@ summary(arte_size_anova)
 ```
 We can see there is no significant difference in the mean growth rate between pot size or irrigation level for Artemisia. The low irrigation and the 1 gallon plants had slightly (but not significantly) higher mean PG.
 
-#Ceanothus Mean Plant Growth Index by Pot Size and Irrigation
+## Ceanothus Mean Plant Growth Index by Pot Size and Irrigation
 ```{r}
 # isolated ceo mean PGI by irrigation
 ceo_irrigation <- ceo %>% 
@@ -267,7 +279,7 @@ summary(ceo_size_anova)
 
 We can see that the Ceanothus in the high irrigation plot had a significantly larger mean plant growth index than those in the low irrigation plot. There was no significant difference between Ceanothus in 1 gallon and 4 inch pots, however the 1 gallon Ceanothus mean PGI was slightly higher.
 
-
+## Diplacus Mean Plant Growth Index by Pot Size and Irrigation
 ```{r}
 # isolated dip mean PGI by irrigation
 dip_irrigation <- dip %>% 
@@ -323,7 +335,7 @@ summary(dip_size_anova)
 
 We can see that there is no significant difference in the mean PGI of Diplacus planted in the low and high level irrigation plots, or between those started in 1 gallon and 4 inch pots.
 
-
+## Salvia Mean Plant Growth Index by Pot Size and Irrigation
 ```{r}
 salvia_irrigation <- salvia %>% 
    group_by(irrigation) %>% 
@@ -379,7 +391,9 @@ We can see there is no significant difference in the mean growth rate between po
 
 The mean of the plant growth index flattens the data and removes the seasonal oscillations inherent this time-series data. We can also look at the growth rate of each treatment by taking the slope of the line representing the PGI over time. This serves to visualize the inches of growth per month for each species.
 
-# Arctostaphylos Growth Rate
+# Growth Rate of Species (PGI/time)
+
+## Arctostaphylos Growth Rate
 
 ```{r}
 irr_labels <- labeller(
@@ -440,7 +454,7 @@ ggplot(data = arcto, aes(x = surv_month, y = growth_rate)) +
 
 We can see that the plants in the low irrigation plot had the highest growth rate (PGI/time). 
 
-# Artemisia Growth Rate
+## Artemisia Growth Rate
 
 ```{r}
 #creating a plot of growth rate by irrigation
@@ -493,7 +507,7 @@ ggplot(data = arte, aes(x = surv_month, y = growth_rate)) +
 ```
 We can see that the plants in the low irrigation plot had a higher growth rate than those in the high irrigation plot. It's also interesting to note that the growth rates of the pot sizes within each irrigation level are quite similar to each other, indicating that pot size had little effect on the growth rate of Artemisia.
 
-# Ceanothus Growth Rate
+## Ceanothus Growth Rate
 
 ```{r}
 #creating a plot of growth rate by irrigation
@@ -547,7 +561,7 @@ ggplot(data = ceo, aes(x = surv_month, y = growth_rate)) +
 
 We can see that there is more variation in the Ceanothus growth rate, with the 1 gallon Ceanothus in the low irrigation plot having the highest growth rate while the 4 inch Ceanothus in the low irrigation plot have the lowest growth rate. This variation may show that 1 gallon plants preform better, especially when there is less irrigation, or it could be error due to the fact that predation on Ceanothus by deer was quite high. 
 
-# Diplacus Growth Rate
+## Diplacus Growth Rate
 ```{r}
 #creating a plot of growth rate by irrigation
 # split by irrigation
@@ -600,7 +614,7 @@ ggplot(data =  dip, aes(x = surv_month, y = growth_rate)) +
 
 We can see that the Diplacus in the low irrigation plot had a much higher growth rate than those in the high irrigation plot. In the low irrigation we can see that the 4 inch plants outpreformed the 1 gallon plants, however the inverse is true in the high irrigation plot. This further confirms that initial pot size does not have a predictable effect on the plant's growth.
 
-# Salvia Growth Rate
+## Salvia Growth Rate
 
 ```{r}
 #creating a plot of growth rate by irrigation
@@ -651,5 +665,15 @@ ggplot(data =  salvia, aes(x = surv_month, y = growth_rate)) +
             aes(x = 15, y = 32, label = "1.312"), 
             color = "deepskyblue", size = 4, fontface = "bold")
 ```
+
+We can see that the Salvia in the low irrigation plot had a higher growth rate than those in the high irrigation plot. 
+
+
+# find error in slope , find diff between averages, can report how much more low grew on avg
+
+# find averages of appearance score
+
+#total deaths/mortality in each treatment
+
 
 

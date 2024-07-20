@@ -80,11 +80,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#arctostaphylos-growth-rate" id="toc-arctostaphylos-growth-rate" class="nav-link active" data-scroll-target="#arctostaphylos-growth-rate">Arctostaphylos Growth Rate</a></li>
+  <li><a href="#mean-pgi-by-species-and-irrigation-level" id="toc-mean-pgi-by-species-and-irrigation-level" class="nav-link active" data-scroll-target="#mean-pgi-by-species-and-irrigation-level">Mean PGI by Species and Irrigation Level</a>
+  <ul class="collapse">
+  <li><a href="#overall" id="toc-overall" class="nav-link" data-scroll-target="#overall">Overall</a></li>
+  <li><a href="#arctostaphylos-mean-plant-growth-index-by-pot-size-and-irrigation" id="toc-arctostaphylos-mean-plant-growth-index-by-pot-size-and-irrigation" class="nav-link" data-scroll-target="#arctostaphylos-mean-plant-growth-index-by-pot-size-and-irrigation">Arctostaphylos Mean Plant Growth Index by Pot Size and Irrigation</a></li>
+  <li><a href="#artemisia-mean-plant-growth-index-by-pot-size-and-irrigation" id="toc-artemisia-mean-plant-growth-index-by-pot-size-and-irrigation" class="nav-link" data-scroll-target="#artemisia-mean-plant-growth-index-by-pot-size-and-irrigation">Artemisia Mean Plant Growth Index by Pot Size and Irrigation</a></li>
+  <li><a href="#ceanothus-mean-plant-growth-index-by-pot-size-and-irrigation" id="toc-ceanothus-mean-plant-growth-index-by-pot-size-and-irrigation" class="nav-link" data-scroll-target="#ceanothus-mean-plant-growth-index-by-pot-size-and-irrigation">Ceanothus Mean Plant Growth Index by Pot Size and Irrigation</a></li>
+  <li><a href="#diplacus-mean-plant-growth-index-by-pot-size-and-irrigation" id="toc-diplacus-mean-plant-growth-index-by-pot-size-and-irrigation" class="nav-link" data-scroll-target="#diplacus-mean-plant-growth-index-by-pot-size-and-irrigation">Diplacus Mean Plant Growth Index by Pot Size and Irrigation</a></li>
+  <li><a href="#salvia-mean-plant-growth-index-by-pot-size-and-irrigation" id="toc-salvia-mean-plant-growth-index-by-pot-size-and-irrigation" class="nav-link" data-scroll-target="#salvia-mean-plant-growth-index-by-pot-size-and-irrigation">Salvia Mean Plant Growth Index by Pot Size and Irrigation</a></li>
+  </ul></li>
+  <li><a href="#growth-rate-of-species-pgitime" id="toc-growth-rate-of-species-pgitime" class="nav-link" data-scroll-target="#growth-rate-of-species-pgitime">Growth Rate of Species (PGI/time)</a>
+  <ul class="collapse">
+  <li><a href="#arctostaphylos-growth-rate" id="toc-arctostaphylos-growth-rate" class="nav-link" data-scroll-target="#arctostaphylos-growth-rate">Arctostaphylos Growth Rate</a></li>
   <li><a href="#artemisia-growth-rate" id="toc-artemisia-growth-rate" class="nav-link" data-scroll-target="#artemisia-growth-rate">Artemisia Growth Rate</a></li>
   <li><a href="#ceanothus-growth-rate" id="toc-ceanothus-growth-rate" class="nav-link" data-scroll-target="#ceanothus-growth-rate">Ceanothus Growth Rate</a></li>
   <li><a href="#diplacus-growth-rate" id="toc-diplacus-growth-rate" class="nav-link" data-scroll-target="#diplacus-growth-rate">Diplacus Growth Rate</a></li>
   <li><a href="#salvia-growth-rate" id="toc-salvia-growth-rate" class="nav-link" data-scroll-target="#salvia-growth-rate">Salvia Growth Rate</a></li>
+  </ul></li>
+  <li><a href="#find-error-in-slope-find-diff-between-averages-can-report-how-much-more-low-grew-on-avg" id="toc-find-error-in-slope-find-diff-between-averages-can-report-how-much-more-low-grew-on-avg" class="nav-link" data-scroll-target="#find-error-in-slope-find-diff-between-averages-can-report-how-much-more-low-grew-on-avg">find error in slope , find diff between averages, can report how much more low grew on avg</a></li>
+  <li><a href="#find-averages-of-appearance-score" id="toc-find-averages-of-appearance-score" class="nav-link" data-scroll-target="#find-averages-of-appearance-score">find averages of appearance score</a></li>
   </ul>
 </nav>
 </div>
@@ -143,14 +157,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># cleaning data for analysis</span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>pet_data_clean <span class="ot">&lt;-</span>  pet_data <span class="sc">%&gt;%</span> </span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>   <span class="fu">filter</span>(irrigation <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"high"</span>, <span class="st">"low"</span>))</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>sp_labels <span class="ot">&lt;-</span> <span class="fu">labeller</span>(</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">species =</span> <span class="fu">c</span>(</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">arcto =</span> <span class="st">"Arctostaphylos"</span>,</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">arte =</span> <span class="st">"Artemisia"</span>,</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">ceo =</span> <span class="st">"Ceanothus"</span>,</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">dip =</span> <span class="st">"Diplacus"</span>,</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">salvia =</span> <span class="st">"Salvia"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>sp_labels <span class="ot">&lt;-</span> <span class="fu">labeller</span>(</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">species =</span> <span class="fu">c</span>(</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">arcto =</span> <span class="st">"Arctostaphylos"</span>,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">arte =</span> <span class="st">"Artemisia"</span>,</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">ceo =</span> <span class="st">"Ceanothus"</span>,</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">dip =</span> <span class="st">"Diplacus"</span>,</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">salvia =</span> <span class="st">"Salvia"</span>))</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>month_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"May"</span>, <span class="st">"June"</span>, <span class="st">"July"</span>, <span class="st">"August"</span>, <span class="st">"September"</span>, <span class="st">"October"</span>, <span class="st">"November"</span>, <span class="st">"December"</span>, <span class="st">"January"</span>, <span class="st">"February"</span>, <span class="st">"March"</span>, <span class="st">"April"</span>, <span class="st">"May"</span>, <span class="st">"June"</span>, <span class="st">"August"</span>, <span class="st">"September"</span>, <span class="st">"October"</span>, <span class="st">"November"</span>, <span class="st">"December"</span>, <span class="st">"January"</span>, <span class="st">"February"</span>, <span class="st">"March"</span>, <span class="st">"Apr"</span>)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>selected_breaks <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">15</span>, <span class="dv">20</span>, <span class="dv">23</span>)</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the corresponding labels for these breaks</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>selected_labels <span class="ot">&lt;-</span> month_labels[selected_breaks]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <div class="cell">
@@ -160,16 +182,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> pet_data_clean, <span class="fu">aes</span>(<span class="at">x =</span> surv_month, <span class="at">y =</span> growth_rate, <span class="at">color =</span> irrigation)) <span class="sc">+</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>       <span class="fu">geom_jitter</span>(<span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>species <span class="sc">+</span> size) <span class="sc">+</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>species <span class="sc">+</span> size, <span class="at">labeller =</span> sp_labels) <span class="sc">+</span></span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Survey Month"</span>,</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> <span class="st">"Plant Growth Index (PGI)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> <span class="st">"Plant Growth Index (PGI)"</span>)<span class="sc">+</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"brown1"</span>, <span class="st">"deepskyblue"</span>),</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>                      <span class="at">name =</span> <span class="st">"Irrigation Level"</span>,</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"High"</span>, <span class="st">"Low"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="final_pet_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>##Showing Mean PGI by Species and Irrigation Level</p>
-<p>#Overall</p>
+<section id="mean-pgi-by-species-and-irrigation-level" class="level1">
+<h1>Mean PGI by Species and Irrigation Level</h1>
+<section id="overall" class="level2">
+<h2 class="anchored" data-anchor-id="overall">Overall</h2>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -216,7 +243,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>   <span class="fu">filter</span>(species <span class="sc">%in%</span> <span class="st">"salvia"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>#Arctostaphylos Mean Plant Growth Index by Pot Size and Irrigation</p>
+</section>
+<section id="arctostaphylos-mean-plant-growth-index-by-pot-size-and-irrigation" class="level2">
+<h2 class="anchored" data-anchor-id="arctostaphylos-mean-plant-growth-index-by-pot-size-and-irrigation">Arctostaphylos Mean Plant Growth Index by Pot Size and Irrigation</h2>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -299,7 +328,9 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 </div>
 <p>We can see that the Acrtostaphylos in the low irrigation plot had a significantly higher mean plant growth index than those in the high irrigation plot. The Acrtostaphylos which started in 1 gallon pots had a significantly higher mean plant growth index than those started in 4 inch pots.</p>
-<p>#Artemisia Mean Plant Growth Index by Pot Size and Irrigation</p>
+</section>
+<section id="artemisia-mean-plant-growth-index-by-pot-size-and-irrigation" class="level2">
+<h2 class="anchored" data-anchor-id="artemisia-mean-plant-growth-index-by-pot-size-and-irrigation">Artemisia Mean Plant Growth Index by Pot Size and Irrigation</h2>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -378,7 +409,9 @@ Residuals   90  15836   176.0               </code></pre>
 </div>
 </div>
 <p>We can see there is no significant difference in the mean growth rate between pot size or irrigation level for Artemisia. The low irrigation and the 1 gallon plants had slightly (but not significantly) higher mean PG.</p>
-<p>#Ceanothus Mean Plant Growth Index by Pot Size and Irrigation</p>
+</section>
+<section id="ceanothus-mean-plant-growth-index-by-pot-size-and-irrigation" class="level2">
+<h2 class="anchored" data-anchor-id="ceanothus-mean-plant-growth-index-by-pot-size-and-irrigation">Ceanothus Mean Plant Growth Index by Pot Size and Irrigation</h2>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -459,6 +492,9 @@ Residuals   90   4220   46.88               </code></pre>
 </div>
 </div>
 <p>We can see that the Ceanothus in the high irrigation plot had a significantly larger mean plant growth index than those in the low irrigation plot. There was no significant difference between Ceanothus in 1 gallon and 4 inch pots, however the 1 gallon Ceanothus mean PGI was slightly higher.</p>
+</section>
+<section id="diplacus-mean-plant-growth-index-by-pot-size-and-irrigation" class="level2">
+<h2 class="anchored" data-anchor-id="diplacus-mean-plant-growth-index-by-pot-size-and-irrigation">Diplacus Mean Plant Growth Index by Pot Size and Irrigation</h2>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -537,6 +573,9 @@ Residuals   90   3480   38.66               </code></pre>
 </div>
 </div>
 <p>We can see that there is no significant difference in the mean PGI of Diplacus planted in the low and high level irrigation plots, or between those started in 1 gallon and 4 inch pots.</p>
+</section>
+<section id="salvia-mean-plant-growth-index-by-pot-size-and-irrigation" class="level2">
+<h2 class="anchored" data-anchor-id="salvia-mean-plant-growth-index-by-pot-size-and-irrigation">Salvia Mean Plant Growth Index by Pot Size and Irrigation</h2>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -614,8 +653,12 @@ Residuals   90  16558   184.0               </code></pre>
 </div>
 <p>We can see there is no significant difference in the mean growth rate between pot size or irrigation level for Salvia. The high irrigation and the 4 inch plants had slightly (but not significantly) higher mean PG.</p>
 <p>The mean of the plant growth index flattens the data and removes the seasonal oscillations inherent this time-series data. We can also look at the growth rate of each treatment by taking the slope of the line representing the PGI over time. This serves to visualize the inches of growth per month for each species.</p>
-<section id="arctostaphylos-growth-rate" class="level1">
-<h1>Arctostaphylos Growth Rate</h1>
+</section>
+</section>
+<section id="growth-rate-of-species-pgitime" class="level1">
+<h1>Growth Rate of Species (PGI/time)</h1>
+<section id="arctostaphylos-growth-rate" class="level2">
+<h2 class="anchored" data-anchor-id="arctostaphylos-growth-rate">Arctostaphylos Growth Rate</h2>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -682,8 +725,8 @@ Residuals   90  16558   184.0               </code></pre>
 </div>
 <p>We can see that the plants in the low irrigation plot had the highest growth rate (PGI/time).</p>
 </section>
-<section id="artemisia-growth-rate" class="level1">
-<h1>Artemisia Growth Rate</h1>
+<section id="artemisia-growth-rate" class="level2">
+<h2 class="anchored" data-anchor-id="artemisia-growth-rate">Artemisia Growth Rate</h2>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -741,8 +784,8 @@ Residuals   90  16558   184.0               </code></pre>
 </div>
 <p>We can see that the plants in the low irrigation plot had a higher growth rate than those in the high irrigation plot. It’s also interesting to note that the growth rates of the pot sizes within each irrigation level are quite similar to each other, indicating that pot size had little effect on the growth rate of Artemisia.</p>
 </section>
-<section id="ceanothus-growth-rate" class="level1">
-<h1>Ceanothus Growth Rate</h1>
+<section id="ceanothus-growth-rate" class="level2">
+<h2 class="anchored" data-anchor-id="ceanothus-growth-rate">Ceanothus Growth Rate</h2>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -800,8 +843,8 @@ Residuals   90  16558   184.0               </code></pre>
 </div>
 <p>We can see that there is more variation in the Ceanothus growth rate, with the 1 gallon Ceanothus in the low irrigation plot having the highest growth rate while the 4 inch Ceanothus in the low irrigation plot have the lowest growth rate. This variation may show that 1 gallon plants preform better, especially when there is less irrigation, or it could be error due to the fact that predation on Ceanothus by deer was quite high.</p>
 </section>
-<section id="diplacus-growth-rate" class="level1">
-<h1>Diplacus Growth Rate</h1>
+<section id="diplacus-growth-rate" class="level2">
+<h2 class="anchored" data-anchor-id="diplacus-growth-rate">Diplacus Growth Rate</h2>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -859,8 +902,8 @@ Residuals   90  16558   184.0               </code></pre>
 </div>
 <p>We can see that the Diplacus in the low irrigation plot had a much higher growth rate than those in the high irrigation plot. In the low irrigation we can see that the 4 inch plants outpreformed the 1 gallon plants, however the inverse is true in the high irrigation plot. This further confirms that initial pot size does not have a predictable effect on the plant’s growth.</p>
 </section>
-<section id="salvia-growth-rate" class="level1">
-<h1>Salvia Growth Rate</h1>
+<section id="salvia-growth-rate" class="level2">
+<h2 class="anchored" data-anchor-id="salvia-growth-rate">Salvia Growth Rate</h2>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -916,6 +959,15 @@ Residuals   90  16558   184.0               </code></pre>
 <p><img src="final_pet_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<p>We can see that the Salvia in the low irrigation plot had a higher growth rate than those in the high irrigation plot.</p>
+</section>
+</section>
+<section id="find-error-in-slope-find-diff-between-averages-can-report-how-much-more-low-grew-on-avg" class="level1">
+<h1>find error in slope , find diff between averages, can report how much more low grew on avg</h1>
+</section>
+<section id="find-averages-of-appearance-score" class="level1">
+<h1>find averages of appearance score</h1>
+<p>#total deaths/mortality in each treatment</p>
 </section>
 
 </main>
