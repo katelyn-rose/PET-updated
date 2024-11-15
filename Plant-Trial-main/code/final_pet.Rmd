@@ -31,7 +31,12 @@ library(corrplot)
 
 ```{r}
 # reading in data
-pet_data <- read.csv(here("Plant-Trial-main", "data", "plantcodefinal.csv"))
+#delete "Plant-Trial-main" to render
+pet_data <- read.csv(here("data", "plantcodefinal.csv"))
+
+appearance <- read.csv(here("data", "Appearance.csv"))
+
+mortality <- read.csv(here("data", "mortality.csv"))
 
 # cleaning data for analysis
 pet_data_clean <-  pet_data %>% 
@@ -47,9 +52,9 @@ sp_labels <- labeller(
     salvia = "Salvia"))
 
 
-month_labels <- c("May", "June", "July", "August", "September", "October", "November", "December", "January", "February", "March", "April", "May", "June", "August", "September", "October", "November", "December", "January", "February", "March", "Apr")
+month_labels <- c("May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Aug", "Sept", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr")
 
-selected_breaks <- c(1, 5, 10, 15, 20, 23)
+selected_breaks <- c(2, 6, 10, 14, 18, 22)
 # Define the corresponding labels for these breaks
 selected_labels <- month_labels[selected_breaks]
 
@@ -62,6 +67,7 @@ ggplot(data = pet_data_clean, aes(x = surv_month, y = growth_rate, color = irrig
        geom_jitter(na.rm = TRUE) +
   theme_bw()+
   facet_wrap(~species + size, labeller = sp_labels) +
+  scale_x_continuous(n.breaks = 5, labels = selected_labels) +
   labs(x = "Survey Month",
         y = "Plant Growth Index (PGI)")+
   scale_color_manual(values = c("brown1", "deepskyblue"),
@@ -87,10 +93,12 @@ group_by(irrigation) %>%
 ggplot(data = pet_summary_irr, aes (y = mean_growth, x = irrigation, color = irrigation)) +
    geom_point() +
    geom_linerange(aes(ymin = mean_growth - margin_growth, ymax = mean_growth + margin_growth), linewidth = 0.5) +
-   labs(x = "Irrigation Level") +
+   labs(x = "Irrigation Level",
+        title = "All Species") +
    scale_y_continuous(name = "Mean Plant Growth Index", limits = c(20, 40))+
    theme_bw()
 ```
+
 
 Not very clear, let's isolate by species.
 
@@ -389,7 +397,9 @@ summary(salvia_size_anova)
 
 We can see there is no significant difference in the mean growth rate between pot size or irrigation level for Salvia. The high irrigation and the 4 inch plants had slightly (but not significantly) higher mean PG.
 
+
 The mean of the plant growth index flattens the data and removes the seasonal oscillations inherent this time-series data. We can also look at the growth rate of each treatment by taking the slope of the line representing the PGI over time. This serves to visualize the inches of growth per month for each species.
+
 
 # Growth Rate of Species (PGI/time)
 
@@ -612,7 +622,7 @@ ggplot(data =  dip, aes(x = surv_month, y = growth_rate)) +
             color = "deepskyblue", size = 4, fontface = "bold")
 ```
 
-We can see that the Diplacus in the low irrigation plot had a much higher growth rate than those in the high irrigation plot. In the low irrigation we can see that the 4 inch plants outpreformed the 1 gallon plants, however the inverse is true in the high irrigation plot. This further confirms that initial pot size does not have a predictable effect on the plant's growth.
+We can see that the Diplacus in the low irrigation plot had a much higher growth rate than those in the high irrigation plot. In the low irrigation we can see that the 4 inch plants outperformed the 1 gallon plants, however the inverse is true in the high irrigation plot. This further confirms that initial pot size does not have a predictable effect on the plant's growth. 
 
 ## Salvia Growth Rate
 
@@ -632,48 +642,76 @@ ggplot(data =  salvia, aes(x = surv_month, y = growth_rate)) +
                      labels = c("1 gallon", "4 inch"))+
   # adding slope lines
   # high irr 1 gal
-  geom_abline(data = subset(dip, irrigation == "high"), 
+  geom_abline(data = subset(salvia, irrigation == "high"), 
               aes(slope= 1.432238, intercept= 25.03053), 
               color = "brown1") +
   # high irr 4 in
-  geom_abline(data = subset(dip, irrigation == "high"), 
+  geom_abline(data = subset(salvia, irrigation == "high"), 
               aes(slope = 1.312352, intercept= 18.73221), 
               color = "deepskyblue")+
   # low irr 4 in
-   geom_abline(data = subset(dip, irrigation == "low"), 
+   geom_abline(data = subset(salvia, irrigation == "low"), 
               aes(slope = 2.250896, intercept= 7.425395), 
               color = "deepskyblue")+
   # low irr 1 gal
-  geom_abline(data = subset(dip, irrigation == "low"), 
+  geom_abline(data = subset(salvia, irrigation == "low"), 
               aes(slope = 1.873007401, intercept= 11.52011), 
               color = "brown1")+
    # adding slope labels
   # low irr 1 gal
- geom_text(data = subset(dip, irrigation == "low"), 
+ geom_text(data = subset(salvia, irrigation == "low"), 
             aes(x = 17, y = 36, label = "1.873"), 
             color = "brown1", size = 4, fontface = "bold")+
    # low irr 4 in
-   geom_text(data = subset(dip, irrigation == "low"), 
+   geom_text(data = subset(salvia, irrigation == "low"), 
             aes(x = 18, y = 56, label = "2.251"), 
             color = "deepskyblue", size = 4, fontface = "bold")+
     # high irr 1 gal
-   geom_text(data = subset(dip, irrigation == "high"), 
+   geom_text(data = subset(salvia, irrigation == "high"), 
             aes(x = 17, y = 55, label = "1.432"), 
             color = "brown1", size = 4, fontface = "bold") +
     # high irr 4 in
-  geom_text(data = subset(dip, irrigation == "high"), 
+  geom_text(data = subset(salvia, irrigation == "high"), 
             aes(x = 15, y = 32, label = "1.312"), 
             color = "deepskyblue", size = 4, fontface = "bold")
 ```
 
 We can see that the Salvia in the low irrigation plot had a higher growth rate than those in the high irrigation plot. 
 
-
 # find error in slope , find diff between averages, can report how much more low grew on avg
 
-# find averages of appearance score
+# Appearance score
+```{r}
+# plot to visualize appearance scores
+ggplot(data = appearance, aes(x = surv_month, y = score, color = irrigation)) +
+       geom_jitter(na.rm = TRUE) +
+  theme_bw()+
+  facet_wrap(~species + size, labeller = sp_labels) +
+  scale_x_continuous(n.breaks = 5, labels = selected_labels) +
+  labs(x = "Survey Month",
+        y = "Appearance Score",
+       title = "Plant Appearance Over Time")+
+  scale_color_manual(values = c("brown1", "deepskyblue"),
+                      name = "Irrigation Level",
+                     labels = c("High", "Low"))
+```
 
-#total deaths/mortality in each treatment
+# total deaths/mortality in each treatment
+
+```{r}
+# plot to visualize appearance scores
+ggplot(data = mortality, aes(x = mortality, color = irrigation)) +
+       geom_bar(na.rm = TRUE) +
+  theme_bw()+
+  facet_wrap(~species + size, labeller = sp_labels)  +
+  labs(x = "Survey Month",
+        y = "Number of Mortalities",
+       title = "Total Plant Mortalities")+
+  scale_color_manual(values = c("brown1", "deepskyblue"),
+                      name = "Irrigation Level",
+                     labels = c("High", "Low"))
+```
+
 
 
 
