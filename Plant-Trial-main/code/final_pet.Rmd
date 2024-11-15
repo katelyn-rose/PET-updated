@@ -32,11 +32,11 @@ library(corrplot)
 ```{r}
 # reading in data
 #delete "Plant-Trial-main" to render
-pet_data <- read.csv(here("data", "plantcodefinal.csv"))
+pet_data <- read.csv(here("Plant-Trial-main", "data", "plantcodefinal.csv"))
 
-appearance <- read.csv(here("data", "Appearance.csv"))
+appearance <- read.csv(here("Plant-Trial-main", "data", "Appearance.csv"))
 
-mortality <- read.csv(here("data", "mortality.csv"))
+mortality <- read.csv(here("Plant-Trial-main", "data", "mortality.csv"))
 
 # cleaning data for analysis
 pet_data_clean <-  pet_data %>% 
@@ -53,6 +53,12 @@ sp_labels <- labeller(
 
 
 month_labels <- c("May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Aug", "Sept", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr")
+
+irr_labels <- labeller(
+  irrigation = c(
+  high = "High Irrigation",
+  low = "Low Irrigation"))
+
 
 selected_breaks <- c(2, 6, 10, 14, 18, 22)
 # Define the corresponding labels for these breaks
@@ -699,17 +705,19 @@ ggplot(data = appearance, aes(x = surv_month, y = score, color = irrigation)) +
 # total deaths/mortality in each treatment
 
 ```{r}
-# plot to visualize appearance scores
-ggplot(data = mortality, aes(x = mortality, color = irrigation)) +
-       geom_bar(na.rm = TRUE) +
+# plot to visualize mortalities
+ggplot(data = mortality, aes(x = species, y = mortality, fill = irrigation)) +
+       geom_bar(stat = "identity", position = "dodge") +
   theme_bw()+
-  facet_wrap(~species + size, labeller = sp_labels)  +
-  labs(x = "Survey Month",
-        y = "Number of Mortalities",
+  facet_wrap(~size, labeller = labeller(sp_labels))  +
+  labs(y = "Number of Mortalities",
+       x = NULL,
        title = "Total Plant Mortalities")+
-  scale_color_manual(values = c("brown1", "deepskyblue"),
-                      name = "Irrigation Level",
-                     labels = c("High", "Low"))
+    scale_fill_manual(
+    values = c("brown1", "deepskyblue"),
+    name = "Irrigation Level",
+    labels = c("High", "Low")) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05)))
 ```
 
 
