@@ -32,11 +32,11 @@ library(corrplot)
 ```{r}
 # reading in data
 #delete "Plant-Trial-main" to render
-pet_data <- read.csv(here("Plant-Trial-main", "data", "plantcodefinal.csv"))
+pet_data <- read.csv(here("data", "plantcodefinal.csv"))
 
-appearance <- read.csv(here("Plant-Trial-main", "data", "Appearance.csv"))
+appearance <- read.csv(here("data", "Appearance.csv"))
 
-mortality <- read.csv(here("Plant-Trial-main", "data", "mortality.csv"))
+mortality <- read.csv(here("data", "mortality.csv"))
 
 # cleaning data for analysis
 pet_data_clean <-  pet_data %>% 
@@ -706,8 +706,13 @@ ggplot(data = appearance, aes(x = surv_month, y = score, color = irrigation)) +
 
 ```{r}
 # plot to visualize mortalities
-ggplot(data = mortality, aes(x = species, y = mortality, fill = irrigation)) +
+
+ggplot(data = mortality, aes(x = species, y = mortality, fill = irrigation))+
        geom_bar(stat = "identity", position = "dodge") +
+  geom_text(aes(label = ifelse(mortality > 0, mortality, "")),
+          position = position_dodge(width = 0.8),
+          vjust = -0.5,
+          size = 3.5)+
   theme_bw()+
   facet_wrap(~size, labeller = labeller(sp_labels))  +
   labs(y = "Number of Mortalities",
